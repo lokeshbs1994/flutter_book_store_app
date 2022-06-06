@@ -12,6 +12,7 @@ class UserBookItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scaffold = Scaffold.of(context);
     return ListTile(
       title: Text(title),
       leading: CircleAvatar(
@@ -31,8 +32,17 @@ class UserBookItem extends StatelessWidget {
                   color: Theme.of(context).primaryColor,
                 )),
             IconButton(
-                onPressed: () {
-                  Provider.of<Books>(context, listen: false).deleteBook(id);
+                onPressed: () async {
+                  try {
+                    await Provider.of<Books>(context, listen: false)
+                        .deleteBook(id);
+                  } catch (error) {
+                    scaffold.showSnackBar(SnackBar(
+                        content: Text(
+                      'Deleting failed',
+                      textAlign: TextAlign.center,
+                    )));
+                  }
                 },
                 icon: Icon(
                   Icons.delete,

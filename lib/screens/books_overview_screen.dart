@@ -17,6 +17,31 @@ class BookOverviewScreen extends StatefulWidget {
 }
 
 class _BookOverviewScreenState extends State<BookOverviewScreen> {
+  var _isInit = true;
+  var _isLoading = false;
+  @override
+  void initState() {
+    // Provider.of<Books>(context).fetchAndSetBooks();
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      Provider.of<Books>(context).fetchAndSetBooks().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
@@ -40,7 +65,11 @@ class _BookOverviewScreenState extends State<BookOverviewScreen> {
         ],
       ),
       drawer: AppDrawer(),
-      body: BooksGrid(),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : BooksGrid(),
     );
   }
 }
