@@ -9,12 +9,13 @@ class UserBooksScreen extends StatelessWidget {
   static const routeName = 'user-books';
 
   Future<void> _refreshBooks(BuildContext context) async {
-    await Provider.of<Books>(context, listen: false).fetchAndSetBooks();
+    await Provider.of<Books>(context, listen: false).fetchAndSetBooks(true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final booksData = Provider.of<Books>(context);
+    //final booksData = Provider.of<Books>(context);
+    print('rebuilding');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.brown,
@@ -29,21 +30,31 @@ class UserBooksScreen extends StatelessWidget {
         ],
       ),
       drawer: const AppDrawer(),
-      body: RefreshIndicator(
-        onRefresh: () => _refreshBooks(context),
-        child: Padding(
-          padding: EdgeInsets.all(8),
-          child: ListView.builder(
-            itemCount: booksData.items.length,
-            itemBuilder: (_, i) => Column(
-              children: [
-                UserBookItem(booksData.items[i].id, booksData.items[i].title,
-                    booksData.items[i].imageUrl),
-                const Divider(),
-              ],
-            ),
-          ),
-        ),
+      body: FutureBuilder(
+        future: _refreshBooks(context),
+        builder: (context, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: () => _refreshBooks(context),
+                    child: Consumer<Books>(
+                      builder: (context, booksData, _) => Padding(
+                        padding: EdgeInsets.all(8),
+                        child: ListView.builder(
+                          itemCount: booksData.items.length,
+                          itemBuilder: (_, i) => Column(
+                            children: [
+                              UserBookItem(
+                                  booksData.items[i].id,
+                                  booksData.items[i].title,
+                                  booksData.items[i].imageUrl),
+                              const Divider(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
       ),
     );
   }

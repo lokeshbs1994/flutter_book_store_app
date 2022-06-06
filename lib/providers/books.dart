@@ -5,9 +5,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class Books with ChangeNotifier {
-  // final String authToken;
-  // final String userId;
-  // Books(this.authToken, this.userId, this._items);
+  final String? authToken;
+  final String userId;
+
+  Books(this.authToken, this.userId, this._items);
 
   List<Book> _items = [
     // Book(
@@ -121,9 +122,11 @@ class Books with ChangeNotifier {
     return _items.firstWhere((book) => book.id == id);
   }
 
-  Future<void> fetchAndSetBooks() async {
-    const url =
-        "https://flutter-bookstore-15791-default-rtdb.firebaseio.com/books.json";
+  Future<void> fetchAndSetBooks([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? 'orderBy="creatorId"&equalTo="$userId"' : '';
+    var url =
+        "https://flutter-bookstore-15791-default-rtdb.firebaseio.com/books.json?auth=$authToken&$filterString";
     try {
       final response = await http.get(Uri.parse(url));
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -151,8 +154,8 @@ class Books with ChangeNotifier {
   }
 
   Future<void> addBook(Book book) async {
-    const url =
-        "https://flutter-bookstore-15791-default-rtdb.firebaseio.com/books.json";
+    final url =
+        "https://flutter-bookstore-15791-default-rtdb.firebaseio.com/books.json?auth=$authToken";
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -161,6 +164,7 @@ class Books with ChangeNotifier {
           'author': book.author,
           'price': book.price,
           'imageUrl': book.imageUrl,
+          'creatorId': userId,
         }),
       );
       final newBook = Book(
@@ -185,7 +189,7 @@ class Books with ChangeNotifier {
     final bookIndex = _items.indexWhere((book) => book.id == id);
     if (bookIndex >= 0) {
       final url =
-          'https://flutter-bookstore-15791-default-rtdb.firebaseio.com/books/$id.json';
+          'https://flutter-bookstore-15791-default-rtdb.firebaseio.com/books/$id.json?auth=$authToken';
       await http.patch(
         Uri.parse(url),
         body: json.encode({
@@ -205,7 +209,7 @@ class Books with ChangeNotifier {
 
   Future<void> deleteBook(String id) async {
     final url =
-        'https://flutter-bookstore-15791-default-rtdb.firebaseio.com/books/$id.json';
+        'https://flutter-bookstore-15791-default-rtdb.firebaseio.com/books/$id.json?auth=$authToken';
     final existingBookIndex = _items.indexWhere((book) => book.id == id);
     Book? existingBook = _items[existingBookIndex];
     _items.removeAt(existingBookIndex);
