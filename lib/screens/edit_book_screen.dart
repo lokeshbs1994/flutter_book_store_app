@@ -128,7 +128,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Book'),
-        backgroundColor: Colors.brown,
+        backgroundColor: Color.fromARGB(255, 129, 17, 24),
         actions: [IconButton(onPressed: _saveForm, icon: Icon(Icons.save))],
       ),
       body: _isLoading

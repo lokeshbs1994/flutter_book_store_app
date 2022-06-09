@@ -18,7 +18,7 @@ class UserBooksScreen extends StatelessWidget {
     print('rebuilding');
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.brown,
+        backgroundColor: Color.fromARGB(255, 129, 17, 24),
         title: const Text('Your Books'),
         actions: [
           IconButton(

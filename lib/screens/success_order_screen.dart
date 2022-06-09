@@ -9,7 +9,7 @@ class OrderSuccessful extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.brown,
+        backgroundColor: Color.fromARGB(255, 129, 17, 24),
         title: Text('Book Store'),
       ),
       body: Center(
@@ -21,7 +21,7 @@ class OrderSuccessful extends StatelessWidget {
               height: 20,
             ),
             FlatButton(
-              color: Colors.brown,
+              color: Color.fromARGB(255, 129, 17, 24),
               onPressed: () {
                 Navigator.of(context).pushReplacementNamed('/');
               },

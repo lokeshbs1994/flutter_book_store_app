@@ -13,7 +13,7 @@ class AppDrawer extends StatelessWidget {
     return Drawer(
       child: Column(children: [
         AppBar(
-          backgroundColor: Colors.brown,
+          backgroundColor: Color.fromARGB(255, 129, 17, 24),
           title: Text('Hello Friend!'),
           automaticallyImplyLeading: false,
         ),

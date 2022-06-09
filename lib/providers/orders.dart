@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:book_store_app/providers/customer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:book_store_app/providers/cart.dart';
 import 'package:http/http.dart' as http;
@@ -9,12 +10,14 @@ class OrderItem {
   final double amount;
   final List<CartItem> products;
   final DateTime dateTime;
+  final Customer customer;
 
   OrderItem({
     required this.id,
     required this.amount,
     required this.products,
     required this.dateTime,
+    required this.customer,
   });
 }
 
@@ -42,25 +45,36 @@ class Orders with ChangeNotifier {
     extractedData.forEach((orderId, orderData) {
       loadedOrders.add(
         OrderItem(
-          id: orderId,
-          amount: orderData['amount'],
-          dateTime: DateTime.parse(orderData['dateTime']),
-          products: (orderData['products'] as List<dynamic>)
-              .map((item) => CartItem(
-                  id: item['id'],
-                  title: item['title'],
-                  quantity: item['quantity'],
-                  price: item['price'],
-                  image: item['image']))
-              .toList(),
-        ),
+            id: orderId,
+            amount: orderData['amount'],
+            dateTime: DateTime.parse(orderData['dateTime']),
+            products: (orderData['products'] as List<dynamic>)
+                .map((item) => CartItem(
+                    id: item['id'],
+                    title: item['title'],
+                    quantity: item['quantity'],
+                    price: item['price'],
+                    image: item['image']))
+                .toList(),
+            customer: Customer.fromJson(orderData['customer'])
+            //Customer.fromJson(orderData['customers'])
+            // .map((customer) => Customer(
+            //     name: customer['name'],
+            //     phoneNumber: customer['phoneNumber'],
+            //     pinCode: customer['pinCode'],
+            //     locality: customer['locality'],
+            //     address: customer['address'],
+            //     cityOrTown: customer['cityOrTown'],
+            //     landmark: customer['landmark']))
+            ),
       );
     });
     _orders = loadedOrders.reversed.toList();
     notifyListeners();
   }
 
-  Future<void> addOrders(List<CartItem> cartProducts, double total) async {
+  Future<void> addOrders(List<CartItem> cartProducts, double total,
+      Customer customerDetails) async {
     final url =
         "https://flutter-bookstore-15791-default-rtdb.firebaseio.com/orders/$userId.json?auth=$authToken";
     final timeStamp = DateTime.now();
@@ -77,17 +91,26 @@ class Orders with ChangeNotifier {
                   'price': cp.price,
                   'image': cp.image,
                 })
-            .toList()
+            .toList(),
+        'customer': {
+          'name': customerDetails.name,
+          'phoneNumber': customerDetails.phoneNumber,
+          'pinCode': customerDetails.pinCode,
+          'locality': customerDetails.locality,
+          'address': customerDetails.address,
+          'cityOrTown': customerDetails.cityOrTown,
+          'landmark': customerDetails.landmark,
+        }
       }),
     );
     _orders.insert(
       0,
       OrderItem(
-        id: json.decode(response.body)['name'],
-        amount: total,
-        products: cartProducts,
-        dateTime: timeStamp,
-      ),
+          id: json.decode(response.body)['name'],
+          amount: total,
+          products: cartProducts,
+          dateTime: timeStamp,
+          customer: customerDetails),
     );
     notifyListeners();
   }
